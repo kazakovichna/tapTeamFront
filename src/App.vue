@@ -1,15 +1,34 @@
 <template>
-  <img alt="Vue logo" src="./assets/logo.png">
-  <HelloWorld msg="Welcome to Your Vue.js App"/>
+  <div class="main-app">
+    <Header/>
+    <router-view/>
+  </div>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue'
+import Header from './components/header-comp.vue'
 
 export default {
-  name: 'App',
   components: {
-    HelloWorld
+    Header
+  },
+  name: 'App',
+  data: () => ({
+    screenX: window.screen.availWidth,
+    screenY: window.innerHeight
+  }),
+  methods: {
+    set_scale() {
+      this.screenX = window.innerWidth
+      this.screenY = window.innerHeight
+    },
+  },
+  created() {
+    window.addEventListener('resize', this.set_scale)
+  },
+  mounted() {
+    this.back = document.querySelector('.main-app')
+    this.back.style.height = `${this.screenY}px`
   }
 }
 </script>
@@ -17,10 +36,9 @@ export default {
 <style>
 #app {
   font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
+}
+.main-app {
+  height: available;
+  background-color: #323232;
 }
 </style>
