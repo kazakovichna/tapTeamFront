@@ -18,38 +18,43 @@
         <div class="error-div">
           {{errorMas[book.book_id - 1]}}
         </div>
-       <div class="book-img"></div>
-        <div class="book-name-descr">
-          <input class="book-name-input" v-model="book.book_name" @change="updateBook(book.book_id)" placeholder="Book name" type="text">
-          <textarea class="book-descr" spellcheck="false" v-model="book.book_descr" @change="updateBook(book.book_id)" placeholder="Book description"/>
-        </div>
-        <div class="book-year-author">
-          <div class="book-year">
-            <div class="book-year-text">
-              Year:
-            </div>
-            <input class="book-year-input"
-                   v-model="book.book_year"
-                   @change="updateBook(book.book_id)"
-                   placeholder="Book name"
-                   oninput="this.value = this.value.replace(/[^0-9]/g, '')"
-                   type="number">
+        <div class="all-cont-div">
+         <div class="book-img"></div>
+          <div class="book-name-descr">
+            <input class="book-name-input" v-model="book.book_name" @change="updateBook(book.book_id)" placeholder="Book name" type="text">
+            <textarea class="book-descr" spellcheck="false" v-model="book.book_descr" @change="updateBook(book.book_id)" placeholder="Book description"/>
           </div>
-          <div class="book-author">
-            <div class="book-add-author">
-              <input type="text" v-model="newAuthor[book.id]" placeholder="add Author">
-              <div class="book-add-author-but">
-                Add
+          <div class="book-year-author">
+            <div class="book-year">
+              <div class="book-year-text">
+                Year:
               </div>
+              <input class="book-year-input"
+                     v-model="book.book_year"
+                     @change="updateBook(book.book_id)"
+                     placeholder="Book name"
+                     type="number">
             </div>
-            <div class="book-author-loop">
-              <div class="book-author-item"
-                v-for="author in book.book_authorList"
-                   :key="author.author_id"
-              >
-                <input type="text" v-model="author.author_name"  placeholder="Author Name">
-                <div class="delete_author_from_book">
-                  <a>X</a>
+            <div class="book-author">
+              <div class="book-add-author">
+                <input type="text" v-model="newAuthor[book.book_id - 1]" placeholder="add Author">
+                <div class="book-add-author-but"
+                  @click="addAuthor(newAuthor[book.book_id - 1], book.book_id)"
+                >
+                  Add
+                </div>
+              </div>
+              <div class="book-author-loop">
+                <div class="book-author-item"
+                  v-for="author in book.book_authorList"
+                     :key="author.author_id"
+                >
+                  <input type="text" v-model="author.author_name" @change="updateBook(book.book_id)" placeholder="Author Name">
+                  <div class="delete_author_from_book"
+                      @click="removeAuthorFromBook(book.book_id, author.author_id)"
+                  >
+                    <a>X</a>
+                  </div>
                 </div>
               </div>
             </div>
@@ -82,7 +87,7 @@ export default {
        'GET_ALL_BOOKS',
         'UPDATE_BOOK'
     ]),
-    updateBook(bookId) {
+    async updateBook(bookId) {
       let updateBookData = this.books[bookId - 1]
 
       if (updateBookData.book_name === '') {
@@ -97,18 +102,47 @@ export default {
         this.errorMas[bookId - 1] = 'Empty author!'
         return ''
       } else { this.errorMas[bookId - 1] = '' }
-      this.UPDATE_BOOK(updateBookData);
+
+      await this.UPDATE_BOOK(updateBookData);
+      await this.GET_ALL_BOOKS()
+      this.books = this.GET_BOOKS
     },
-    updataAuthor() {
+    updateAuthor() {
       console.log('Hey im update author')
     },
     addBookFunc() {
       this.ADD_BOOKS(this.addBook)
+    },
+    async addAuthor(author_name, book_id) {
+      const newAuthor = {
+            "author_id": 0,
+            "author_name":author_name
+      }
+      console.log(newAuthor)
+      this.books[book_id - 1].book_authorList.push(newAuthor)
+
+      await this.updateBook(book_id)
+      await this.GET_ALL_BOOKS()
+      this.books = this.GET_BOOKS
+      this.newAuthor[book_id - 1]= ""
+    },
+    async removeAuthorFromBook(book_id, author_id) {
+      if (this.books[book_id - 1].book_authorList.length === 1) {
+        this.errorMas[book_id - 1] = 'There is only one author!'
+        return ''
+      } else { this.errorMas[book_id - 1] = '' }
+      let deletedElement = this.books[book_id - 1].book_authorList.find(item => item.author_id === author_id)
+      let deletedIndex = this.books[book_id - 1].book_authorList.indexOf(deletedElement)
+
+      this.books[book_id - 1].book_authorList.splice(deletedIndex, 1)
+      // console.log(this.books[book_id - 1].book_authorList)
+      await this.updateBook(book_id)
     }
   },
   async mounted() {
     await this.GET_ALL_BOOKS()
     this.books = this.GET_BOOKS
+    console.log(JSON.stringify(this.books))
     this.newAuthor.length = this.books.length
     this.errorMas.length = this.books.length
 
@@ -185,11 +219,23 @@ export default {
     border-width: 1px;
     border-radius: 5px;
     display: flex;
-    justify-content: space-between;
+    flex-direction: column;
+    justify-content: center;
     align-items: flex-start;
 
     height: 150px;
     box-shadow: 0 0 10px rgba(0,0,0,0.5);
+  }
+  .error-div {
+    width: 100%;
+    text-align: center;
+    color: #ff3131;
+  }
+  .all-cont-div {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
   }
   .book-img {
     width: 100px;
