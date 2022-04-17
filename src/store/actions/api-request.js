@@ -1,6 +1,8 @@
 import axios from 'axios'
 
 export default {
+
+    // This is books api requests
     async ADD_BOOKS({state}, bookData) {
         console.log(state.books)
          await axios
@@ -48,5 +50,19 @@ export default {
             .catch((error) => {
                 console.log(error)
             })
-    }
+    },
+
+    // This is author api request, I'm gonna add store's modules later
+    async GET_ALL_AUTHORS({commit}) {
+        await axios
+            .get('http://127.0.0.1:8000/author')
+            .then((events) => {
+                commit('SET_AUTHOR', events.data)
+            })
+            .catch((error) => {
+                console.log('hey im here error')
+                console.log(error.data)
+                return error
+            })
+    },
 }

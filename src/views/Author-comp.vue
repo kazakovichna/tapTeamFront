@@ -12,19 +12,14 @@
     </div>
     <div class="book-list">
       <div class="book-list-item"
-           v-for="author in authorList"
-           :key="author.id"
+           v-for="author in authors"
+           :key="authors.indexOf(author)"
       >
         <div class="book-name-descr">
-          <input class="book-name-input" v-model="author.name" placeholder="Author name" type="text">
+          <input class="book-name-input" v-model="author.author_name" placeholder="Author name" type="text">
         </div>
         <div class="book-year-author">
-          <div class="book-author-item"
-               v-for="book in author.books"
-               :key="book.id"
-          >
-            <input type="text" v-model="book.name" placeholder="add Author">
-          </div>
+          3 Books
         </div>
         <div class="delete-author">
           Delete
@@ -35,10 +30,14 @@
 </template>
 
 <script>
+import { mapActions, mapGetters } from 'vuex'
+
+
 export default {
   name: "Author-comp",
   data: () => ({
     addAuthor: '',
+    authors: [],
     authorList: [
       {
         id: 0,
@@ -84,10 +83,23 @@ export default {
       }
     ]
   }),
+  computed: {
+    ...mapGetters([
+        'GET_AUTHORS'
+    ])
+  },
   methods: {
+    ...mapActions([
+        'GET_ALL_AUTHORS'
+    ]),
     addAuthorFunc() {
       console.log(this.addAuthor)
     }
+  },
+  async mounted() {
+    await this.GET_ALL_AUTHORS()
+    this.authors = this.GET_AUTHORS
+    // console.log(this.authors)
   }
 }
 </script>

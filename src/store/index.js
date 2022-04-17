@@ -9,6 +9,7 @@ const actions = {...commonActions, ...apies}
 export default createStore({
     state: {
         books: [],
+        authors: []
     },
     mutations: mutations,
     actions: actions,
