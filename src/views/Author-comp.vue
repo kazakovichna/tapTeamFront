@@ -1,13 +1,18 @@
 <template>
   <div class="home-div">
     <div class="new-list-div">
-      <input class="new-list-input" v-model="addAuthor" placeholder="New Author..." type="text">
-      <div class="new-list-but-div"
-           @click="addAuthorFunc"
-      >
-        <div class="new-list-but-text">
-          Add
-        </div>
+      <div class="error-new-div">
+        {{errorNewAuthor}}
+      </div>
+      <div class="new-auth-div">
+          <input class="new-list-input" v-model="addAuthor" placeholder="New Author..." type="text">
+          <div class="new-list-but-div"
+               @click="addAuthorFunc(addAuthor)"
+          >
+            <div class="new-list-but-text">
+              Add
+            </div>
+          </div>
       </div>
     </div>
     <div class="book-list">
@@ -37,51 +42,8 @@ export default {
   name: "Author-comp",
   data: () => ({
     addAuthor: '',
-    authors: [],
-    authorList: [
-      {
-        id: 0,
-        name: 'Author1',
-        books: [
-          {
-            'id': 0,
-            'name': 'levin',
-          },
-          {
-            'id': 1,
-            'name': 'lexus',
-          },
-        ]
-      },
-      {
-        id: 1,
-        name: 'Author2',
-        books: [
-          {
-            'id': 0,
-            'name': 'levin',
-          },
-          {
-            'id': 1,
-            'name': 'lexus',
-          },
-        ]
-      },
-      {
-        id: 3,
-        name: 'Author3',
-        books: [
-          {
-            'id': 0,
-            'name': 'levin',
-          },
-          {
-            'id': 1,
-            'name': 'lexus',
-          },
-        ]
-      }
-    ]
+    errorNewAuthor: "",
+    authors: []
   }),
   computed: {
     ...mapGetters([
@@ -90,10 +52,22 @@ export default {
   },
   methods: {
     ...mapActions([
-        'GET_ALL_AUTHORS'
+        'GET_ALL_AUTHORS',
+        'ADD_AUTHOR'
     ]),
-    addAuthorFunc() {
-      console.log(this.addAuthor)
+    async addAuthorFunc(addAuthor) {
+      if (addAuthor.length === 0 || addAuthor.length > 255) {
+        this.errorNewAuthor = "Author name invalid"
+      }
+      this.errorNewAuthor = ""
+      const formData = {
+        author_name: addAuthor
+      }
+
+      await this.ADD_AUTHOR(formData)
+      await this.GET_ALL_AUTHORS()
+      this.authors = this.GET_AUTHORS
+      this.addAuthor = ""
     }
   },
   async mounted() {
@@ -116,6 +90,13 @@ export default {
 .new-list-div {
   width: 40%;
   display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+}
+.new-auth-div {
+  width: 100%;
+  display: flex;
   flex-direction: row;
   justify-content: space-between;
 }
@@ -124,6 +105,11 @@ export default {
 }
 .new-list-div input:hover {
   outline: rgba(15, 52, 67, 0.54) solid 1px;
+}
+.error-new-div {
+  width: 100%;
+  text-align: center;
+  color: #ff3131;
 }
 .new-list-input {
   border: none;

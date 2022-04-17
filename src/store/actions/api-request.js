@@ -65,4 +65,17 @@ export default {
                 return error
             })
     },
+    async ADD_AUTHOR({state}, authorData) {
+        console.log(state.authors)
+        console.log(JSON.stringify(authorData))
+        await axios
+            .post('http://127.0.0.1:8000/author',
+                JSON.stringify(authorData))
+            .then((response) => {
+                console.log(response)
+            })
+            .catch((error) => {
+                console.log(error)
+            })
+    }
 }
