@@ -1,18 +1,16 @@
 import axios from 'axios'
 
 export default {
-    async ADD_BOOKS(formData) {
+    async ADD_BOOKS({state}, bookData) {
+        console.log(state.books)
          await axios
             .post('http://127.0.0.1:8000/book',
-                formData
-                )
+                JSON.stringify(bookData))
                 .then((events) => {
-                    console.log(events.data)
-                    return events
+                    console.log(events)
                 })
             .catch((error) => {
                 console.log(error)
-                return error
             })
     },
     async GET_ALL_BOOKS({commit}) {
@@ -28,7 +26,7 @@ export default {
             })
     },
     async UPDATE_BOOK({state}, updateBookData) {
-        console.log(JSON.stringify(updateBookData))
+        console.log("Im calling")
         console.log(state.books)
         await axios
             .post(`http://127.0.0.1:8000/book/${updateBookData.book_id}`,
