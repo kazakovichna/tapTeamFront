@@ -26,7 +26,9 @@
         <div class="book-year-author">
           3 Books
         </div>
-        <div class="delete-author">
+        <div class="delete-author"
+          @click="deleteAuthor(author.author_id)"
+        >
           Delete
         </div>
       </div>
@@ -53,7 +55,8 @@ export default {
   methods: {
     ...mapActions([
         'GET_ALL_AUTHORS',
-        'ADD_AUTHOR'
+        'ADD_AUTHOR',
+        'DELETE_AUTHOR'
     ]),
     async addAuthorFunc(addAuthor) {
       if (addAuthor.length === 0 || addAuthor.length > 255) {
@@ -68,6 +71,12 @@ export default {
       await this.GET_ALL_AUTHORS()
       this.authors = this.GET_AUTHORS
       this.addAuthor = ""
+    },
+    async deleteAuthor(author_id) {
+      await this.DELETE_AUTHOR(author_id)
+
+      await this.GET_ALL_AUTHORS()
+      this.authors = this.GET_AUTHORS
     }
   },
   async mounted() {

@@ -77,5 +77,16 @@ export default {
             .catch((error) => {
                 console.log(error)
             })
+    },
+    async DELETE_AUTHOR({state}, author_id) {
+        console.log(state.authors)
+        await axios
+            .delete(`http://127.0.0.1:8000/author/${author_id}`)
+            .then((response) => {
+                console.log(response)
+            })
+            .catch((error) => {
+                console.log(error)
+            })
     }
 }
