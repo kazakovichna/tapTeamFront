@@ -16,7 +16,16 @@
            :key="book.book_id"
       >
         <div class="error-div">
-          {{errorMas[book.book_id - 1]}}
+          <div class="error-mes">
+            {{errorMas[book.book_id - 1]}}
+          </div>
+          <div class="delete-btn-div">
+            <div class="delete-btn-text"
+              @click="deleteBook(book.book_id)"
+            >
+              Delete
+            </div>
+          </div>
         </div>
         <div class="all-cont-div">
          <div class="book-img"></div>
@@ -85,7 +94,8 @@ export default {
     ...mapActions([
        'ADD_BOOKS',
        'GET_ALL_BOOKS',
-        'UPDATE_BOOK'
+        'UPDATE_BOOK',
+        'DELETE_BOOK'
     ]),
     async updateBook(bookId) {
       let updateBookData = this.books[bookId - 1]
@@ -107,12 +117,11 @@ export default {
       await this.GET_ALL_BOOKS()
       this.books = this.GET_BOOKS
     },
-    updateAuthor() {
-      console.log('Hey im update author')
-    },
+
     addBookFunc() {
       this.ADD_BOOKS(this.addBook)
     },
+
     async addAuthor(author_name, book_id) {
       const newAuthor = {
             "author_id": 0,
@@ -126,6 +135,7 @@ export default {
       this.books = this.GET_BOOKS
       this.newAuthor[book_id - 1]= ""
     },
+
     async removeAuthorFromBook(book_id, author_id) {
       if (this.books[book_id - 1].book_authorList.length === 1) {
         this.errorMas[book_id - 1] = 'There is only one author!'
@@ -137,15 +147,21 @@ export default {
       this.books[book_id - 1].book_authorList.splice(deletedIndex, 1)
       // console.log(this.books[book_id - 1].book_authorList)
       await this.updateBook(book_id)
+    },
+
+    async deleteBook(book_id) {
+      await this.DELETE_BOOK(book_id)
+
+      await this.GET_ALL_BOOKS()
+      this.books = this.GET_BOOKS
     }
   },
   async mounted() {
     await this.GET_ALL_BOOKS()
     this.books = this.GET_BOOKS
-    console.log(JSON.stringify(this.books))
+
     this.newAuthor.length = this.books.length
     this.errorMas.length = this.books.length
-
   },
 }
 </script>
@@ -223,13 +239,37 @@ export default {
     justify-content: center;
     align-items: flex-start;
 
-    height: 150px;
+    height: 170px;
     box-shadow: 0 0 10px rgba(0,0,0,0.5);
   }
   .error-div {
     width: 100%;
-    text-align: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  .error-mes {
     color: #ff3131;
+    text-align: center;
+    width: 70%;
+  }
+  .delete-btn-div {
+    color: white;
+    width: 30%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  .delete-btn-text {
+    padding: 3% 3% 2% 3%;
+    border-radius: 4px;
+    border: solid 1px white;
+    transition: 100ms;
+  }
+  .delete-btn-text:hover {
+    background-color: white;
+    color: #323232;
+    cursor: pointer;
   }
   .all-cont-div {
     width: 100%;
