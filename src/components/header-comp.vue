@@ -17,6 +17,11 @@
       >
         AUTHORS
       </div>
+      <div class="book-but"
+           @click="$router.push('/Special')"
+      >
+        SPECIAL
+      </div>
     </div>
   </div>
 </template>
@@ -57,7 +62,7 @@ export default {
   }
   .right-div {
     margin-right: 10%;
-    width: 25%;
+    width: 35%;
     display: flex;
     justify-content: space-between;
     align-items: center;

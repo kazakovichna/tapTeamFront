@@ -24,7 +24,7 @@
           <input class="book-name-input" v-model="author.author_name" placeholder="Author name" type="text">
         </div>
         <div class="book-year-author">
-          3 Books
+          {{ author.author_book }} Books
         </div>
         <div class="delete-author"
           @click="deleteAuthor(author.author_id)"

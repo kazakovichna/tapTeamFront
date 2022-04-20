@@ -21,35 +21,51 @@
         v-for="book in books"
            :key="book.book_id"
       >
-        <div class="error-div">
-          <div class="error-mes">
-            {{errorMas[books.indexOf(book)]}}
-          </div>
-          <div class="delete-btn-div">
-            <div class="delete-btn-text"
-              @click="deleteBook(book.book_id)"
-            >
-              Delete
-            </div>
-          </div>
-        </div>
-        <div class="all-cont-div">
+
          <div class="book-img"></div>
+
           <div class="book-name-descr">
-            <input class="book-name-input" v-model="book.book_name" @change="updateBook(book.book_id)" placeholder="Book name" type="text">
-            <textarea class="book-descr" spellcheck="false" v-model="book.book_descr" @change="updateBook(book.book_id)" placeholder="Book description"/>
-          </div>
-          <div class="book-year-author">
-            <div class="book-year">
-              <div class="book-year-text">
-                Year:
+            <div class="book-name-year">
+              <input class="book-name-input" v-model="book.book_name" @change="updateBook(book.book_id)" placeholder="Book name" type="text">
+
+              <div class="book-year">
+                <div class="book-year-text">
+                  Year:
+                </div>
+                <input class="book-year-input"
+                       v-model="book.book_year"
+                       @change="updateBook(book.book_id)"
+                       placeholder="add year"
+                       type="number">
               </div>
-              <input class="book-year-input"
-                     v-model="book.book_year"
-                     @change="updateBook(book.book_id)"
-                     placeholder="add year"
-                     type="number">
             </div>
+            <textarea class="book-descr" spellcheck="false" v-model="book.book_description" @change="updateBook(book.book_id)" placeholder="Book description"/>
+            <div class="error-mes">
+              {{errorMas[books.indexOf(book)]}}
+            </div>
+          </div>
+
+          <div class="book-year-author">
+
+            <div class="delete-btn-div">
+              <div class="delete-btn-text"
+                @click="deleteBook(book.book_id)"
+              >
+                Delete Book
+              </div>
+            </div>
+
+<!--            <div class="book-year">-->
+<!--              <div class="book-year-text">-->
+<!--                Year:-->
+<!--              </div>-->
+<!--              <input class="book-year-input"-->
+<!--                     v-model="book.book_year"-->
+<!--                     @change="updateBook(book.book_id)"-->
+<!--                     placeholder="add year"-->
+<!--                     type="number">-->
+<!--            </div>-->
+
             <div class="book-author">
               <div class="book-add-author">
                 <input type="text" v-model="newAuthor[books.indexOf(book)]" placeholder="add Author">
@@ -73,8 +89,8 @@
                 </div>
               </div>
             </div>
+
           </div>
-        </div>
       </div>
     </div>
   </div>
@@ -105,7 +121,8 @@ export default {
        'ADD_BOOKS',
        'GET_ALL_BOOKS',
         'UPDATE_BOOK',
-        'DELETE_BOOK'
+        'DELETE_BOOK',
+        'GET_ALL_AUTHORS'
     ]),
     async updateBook(bookId) {
       let updateBookData = this.books.find(item => item.book_id === bookId)
@@ -137,6 +154,8 @@ export default {
         return
       }
       await this.ADD_BOOKS(this.addBookObj)
+      await this.GET_ALL_BOOKS()
+      this.books = this.GET_BOOKS
       this.addBookObj.book_name = ""
       this.addBookObj.book_year = ""
     },
@@ -155,13 +174,13 @@ export default {
       await this.updateBook(book_id)
       await this.GET_ALL_BOOKS()
       this.books = this.GET_BOOKS
+      await this.GET_ALL_AUTHORS
       this.newAuthor[curIndex]= ""
     },
 
     async removeAuthorFromBook(book_id, author_id) {
       let curBook = this.books.find(item => item.book_id === book_id)
       let curIndex = this.books.indexOf(curBook)
-      console.log(curIndex)
 
       if (curBook.book_authorList.length === 1) {
         this.errorMas[curIndex] = 'There is only one author!'
@@ -171,9 +190,12 @@ export default {
       let deletedElement = curBook.book_authorList.find(item => item.author_id === author_id)
       let deletedIndex = curBook.book_authorList.indexOf(deletedElement)
 
-      curBook.book_authorList.splice(deletedIndex, 1)
+      this.books[curIndex].book_authorList.splice(deletedIndex, 1)
       // console.log(this.books[book_id - 1].book_authorList)
       await this.updateBook(book_id)
+      await this.GET_ALL_BOOKS()
+      this.books = this.GET_BOOKS
+      await this.GET_ALL_AUTHORS
     },
 
     async deleteBook(book_id) {
@@ -201,17 +223,17 @@ export default {
     flex-direction: column;
     align-items: center;
     justify-content: flex-start;
-    margin-top: 3%;
+    margin-top: 1%;
   }
   .new-list-div {
-    width: 70%;
+    width: 40%;
     display: flex;
     flex-direction: column;
     align-items: flex-start;
     justify-content: space-between;
   }
   .new-book-error-div {
-    margin-bottom: 20px;
+    margin-bottom: 10px;
     text-align: center;
     width: 100%;
     color: #ff3131;
@@ -259,8 +281,8 @@ export default {
   }
 
   .book-list {
-    width: 70%;
-    margin-top: 4%;
+    width: 40%;
+    margin-top: 1%;
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
@@ -268,7 +290,7 @@ export default {
     overflow-y: scroll;
   }
   .book-list-item {
-    padding: 2%;
+    padding: 2% 2% 2% 2%;
     margin-bottom: 3%;
     width: 90%;
     border-style: solid;
@@ -276,12 +298,15 @@ export default {
     border-width: 1px;
     border-radius: 5px;
     display: flex;
-    flex-direction: column;
-    justify-content: center;
+    justify-content: space-between;
     align-items: flex-start;
 
     height: 170px;
     box-shadow: 0 0 10px rgba(0,0,0,0.5);
+    transition: 100ms;
+  }
+  .book-list-item:hover {
+    box-shadow: 0 0 15px rgba(0,0,0,0.5);
   }
   .error-div {
     width: 100%;
@@ -293,16 +318,19 @@ export default {
     color: #ff3131;
     text-align: center;
     width: 70%;
+    height: 30px;
   }
   .delete-btn-div {
     color: white;
-    width: 30%;
+    width: 100%;
     display: flex;
     justify-content: center;
     align-items: center;
   }
   .delete-btn-text {
-    padding: 3% 3% 2% 3%;
+    text-align: center;
+    width: 80%;
+    padding: 3% 3% 1% 3%;
     border-radius: 4px;
     border: solid 1px white;
     transition: 100ms;
@@ -335,16 +363,6 @@ export default {
 
     color: white;
   }
-  .book-name-input {
-    width: 80%;
-    text-align: left;
-    font-size: 20px;
-    font-weight: 600;
-    color: white;
-    outline: none;
-    background: none;
-    border: none;
-  }
   .book-descr {
     width: 100%!important;
     height: 80%!important;
@@ -355,14 +373,36 @@ export default {
     font-size: 15px;
     color: rgba(255, 255, 255, 0.8);
   }
-  .book-year {
+
+  .book-name-year {
+    width: 100%;
     display: flex;
-    justify-content: flex-start;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .book-name-input {
+    width: 50%;
+    text-align: left;
+    font-size: 20px;
+    font-weight: 600;
+    color: white;
+    outline: none;
+    background: none;
+    border: none;
+  }
+  .book-year {
+    width: 50%;
+    display: flex;
+    justify-content: flex-end;
     align-items: center;
     font-size: 20px;
   }
+  .book-year-text {
+    /*width: 50%;*/
+
+  }
   .book-year-input {
-    width: 50%;
+    width: 35%;
     height: 100%;
     font-size: 20px;
     text-align: left;
@@ -385,6 +425,10 @@ export default {
   .book-year-author {
     width: 30%;
     color: rgba(255, 255, 255, 0.8);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
   }
   .book-author {
     width: 100%;

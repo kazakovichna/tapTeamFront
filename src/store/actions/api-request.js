@@ -28,8 +28,9 @@ export default {
             })
     },
     async UPDATE_BOOK({state}, updateBookData) {
-        console.log("Im calling")
         console.log(state.books)
+
+        console.log(JSON.stringify(updateBookData))
         await axios
             .post(`http://127.0.0.1:8000/book/${updateBookData.book_id}`,
                 JSON.stringify(updateBookData))
@@ -83,6 +84,28 @@ export default {
         await axios
             .delete(`http://127.0.0.1:8000/author/${author_id}`)
             .then((response) => {
+                console.log(response)
+            })
+            .catch((error) => {
+                console.log(error)
+            })
+    },
+    async GET_SQL_SPECIAL({commit}) {
+        await axios
+            .get('http://127.0.0.1:8000/special/sql')
+            .then((response) => {
+                commit('SET_SQL_DATA', response.data)
+                console.log(response.data)
+            })
+            .catch((error) => {
+                console.log(error)
+            })
+    },
+    async GET_ORM_SPECIAL({commit}) {
+        await axios
+            .get('http://127.0.0.1:8000/special/sql')
+            .then((response) => {
+                commit('SET_ORM_DATA', response.data)
                 console.log(response)
             })
             .catch((error) => {
