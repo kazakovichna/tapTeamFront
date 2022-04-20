@@ -22,6 +22,11 @@
       >
         SPECIAL
       </div>
+      <a class="book-but" style="text-decoration: none;"
+           href="http://127.0.0.1:8000/admin/dashboard"
+      >
+        ADMIN
+      </a>
     </div>
   </div>
 </template>
@@ -64,9 +69,15 @@ export default {
     margin-right: 10%;
     width: 35%;
     display: flex;
-    justify-content: space-between;
+    justify-content: space-around;
     align-items: center;
     font-size: 22px;
+  }
+  .right-div a {
+    color: white !important;
+  }
+  .book-but {
+    transition: 100ms;
   }
   .book-but:hover {
     cursor: pointer;

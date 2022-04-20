@@ -72,7 +72,9 @@
                 <div class="book-add-author-but"
                   @click="addAuthor(newAuthor[books.indexOf(book)], book.book_id)"
                 >
-                  Add
+                  <div class="book-add-author-but-text">
+                    Add
+                  </div>
                 </div>
               </div>
               <div class="book-author-loop">
@@ -84,7 +86,7 @@
                   <div class="delete_author_from_book"
                       @click="removeAuthorFromBook(book.book_id, author.author_id)"
                   >
-                    <a>X</a>
+                    <a>DEL</a>
                   </div>
                 </div>
               </div>
@@ -329,15 +331,17 @@ export default {
   }
   .delete-btn-text {
     text-align: center;
-    width: 80%;
+    width: 100%;
     padding: 3% 3% 1% 3%;
     border-radius: 4px;
     border: solid 1px white;
     transition: 100ms;
   }
   .delete-btn-text:hover {
-    background-color: white;
-    color: #323232;
+    border-radius: 1px;
+    border-color: #ff3131;
+    background-color: #232323;
+    color: white;
     cursor: pointer;
   }
   .all-cont-div {
@@ -399,14 +403,15 @@ export default {
   }
   .book-year-text {
     /*width: 50%;*/
-
+    line-height: 16px;
   }
   .book-year-input {
     width: 35%;
     height: 100%;
     font-size: 20px;
+    line-height: 20px;
     text-align: left;
-    color: rgba(255, 255, 255, 0.8);
+    color: white;
     outline: none;
     background: none;
     border: none;
@@ -431,6 +436,7 @@ export default {
     align-items: flex-start;
   }
   .book-author {
+    margin-top: 5%;
     width: 100%;
     display: flex;
     flex-direction: column;
@@ -440,20 +446,28 @@ export default {
   .book-add-author {
     width: 100%;
     display: flex;
-    justify-content: center;
+    justify-content: space-between;
     gap: 5%;
     align-items: center;
   }
   .book-add-author input {
-    width: 60%;
+    border-radius: 3px;
+    height: 25px;
+    width: 70%;
     outline: none;
     border: none;
   }
   .book-add-author-but {
-    padding: 2px;
+    height: 22px;
+    width: 15%;
+    padding: 2px 2px 1px 2px;
     border: white solid 1px;
     border-radius: 3px;
     font-size: 14px;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
   }
   .book-add-author-but:hover {
     cursor: pointer;
@@ -465,7 +479,7 @@ export default {
     overflow-y: auto;
     display: flex;
     flex-direction: column;
-    gap: 3px;
+    gap: 6px;
   }
   .book-author-item {
     display: flex;
@@ -473,29 +487,38 @@ export default {
     align-items: center;
   }
   .book-author-item input {
+    font-size: 14px;
     width: 80%;
     background: none;
     outline: none;
     border: none;
     color: white;
-
+    transition: 100ms;
+  }
+  .book-author-item input:hover {
+    background-color: #313131;
+    border-radius: 5px;
   }
   .delete_author_from_book {
-    padding: 3px 2px 1px 2px;
+    padding: 2px 2px 1px 2px;
     border: 1px solid white;
+    border-radius: 3px;
     cursor: pointer;
-    width: 15px;
-    height: 15px;
+    height: 22px;
+    width: 15%;
     display: flex;
     justify-content: center;
     align-items: center;
+    transition: 100ms;
   }
   .delete_author_from_book a {
-    font-size: 16px;
+    font-size: 14px;
     line-height: 16px;
   }
   .delete_author_from_book:hover {
-    color: #323232;
-    background-color: white;
+    color: white;
+    background-color: #232323;
+    border-radius: 1px;
+    border-color: #ff3131;
   }
 </style>
