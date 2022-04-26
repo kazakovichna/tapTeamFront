@@ -25,7 +25,7 @@
         SPECIAL
       </div>
       <a class="book-but" style="text-decoration: none;"
-           href="http://127.0.0.1:8000/admin/dashboard"
+           href="https://safe-wildwood-07342.herokuapp.com/admin/dashboard"
       >
         ADMIN
       </a>
