@@ -1,6 +1,8 @@
 <template>
   <div class="header-main">
-    <div class="left-div">
+    <div class="left-div"
+         @click="$router.push('/')"
+    >
       <div class="img-div">
         <img :src="require('../assets/bookshelf.svg')" alt="">
       </div>
@@ -55,6 +57,7 @@ export default {
     display: flex;
     justify-content: center;
     align-items: center;
+    cursor: pointer;
 
     font-size: 30px;
   }
@@ -71,6 +74,7 @@ export default {
     display: flex;
     justify-content: space-around;
     align-items: center;
+    gap: 10px;
     font-size: 22px;
   }
   .right-div a {

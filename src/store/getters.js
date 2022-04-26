@@ -7,5 +7,8 @@ export default {
     },
     GETTER_SQL_SPECIAL: state => {
         return state.sql_data
+    },
+    GETTER_ORM_SPECIAL: state => {
+        return state.orm_data
     }
 }

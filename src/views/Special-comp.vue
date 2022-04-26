@@ -1,7 +1,6 @@
 <template>
   <div class="special-div">
     <div class="special-div-logo">
-      S SQL R<br>
       SQL Request
     </div>
     <div class="special-div-request-dem">
@@ -11,7 +10,7 @@
       GROUP BY b.book_name <br>
       HAVING count(ba.book_id) > 2;
     </div>
-    <div class="sql-div" v-for="value in Object.values(requestSQL)" :key="value.book_name">
+    <div class="sql-div" v-for="value in Object.values(requestSQL)" :key="value.bookName">
       <div class="sql-div-text">
         {{ value.book_name }}
       </div>
@@ -20,7 +19,17 @@
       ORM Request
     </div>
     <div class="special-div-request-dem">
-
+      $queryBuilder->select(array('b.book_name')) <br>
+      ->from('App:Book', 'b') <br>
+      ->leftJoin('b.authorList', 'a') <br>
+      ->having('COUNT(a.id) > 2') <br>
+      ->groupBy('b.book_name') <br>
+      ->getQuery();
+    </div>
+    <div class="sql-div" v-for="value in Object.values(requestORM)" :key="value.bookName">
+      <div class="sql-div-text">
+        {{ value.bookName }}
+      </div>
     </div>
   </div>
 </template>
@@ -32,21 +41,26 @@ export default {
   name: "Special-comp",
   data: () => ({
     requestSQL: '',
-    requestORM: []
+    requestORM: ''
   }),
   computed: {
     ...mapGetters([
-        'GETTER_SQL_SPECIAL'
+        'GETTER_SQL_SPECIAL',
+        'GETTER_ORM_SPECIAL'
     ])
   },
   methods: {
     ...mapActions([
-        'GET_SQL_SPECIAL'
+        'GET_SQL_SPECIAL',
+        'GET_ORM_SPECIAL'
     ])
   },
   async mounted() {
     await this.GET_SQL_SPECIAL()
+    await this.GET_ORM_SPECIAL()
+
     this.requestSQL = this.GETTER_SQL_SPECIAL
+    this.requestORM = this.GETTER_ORM_SPECIAL
   }
 }
 </script>

@@ -21,13 +21,13 @@
            :key="authors.indexOf(author)"
       >
         <div class="book-name-descr">
-          <input class="book-name-input" v-model="author.author_name" placeholder="Author name" type="text">
+          <input class="book-name-input" v-model="author.authorName" placeholder="Author name" type="text">
         </div>
         <div class="book-year-author">
-          {{ author.author_book }} Books
+          {{ author.bookCount }} Books
         </div>
         <div class="delete-author"
-          @click="deleteAuthor(author.author_id)"
+          @click="deleteAuthor(author.authorId)"
         >
           Delete
         </div>
@@ -64,7 +64,7 @@ export default {
       }
       this.errorNewAuthor = ""
       const formData = {
-        author_name: addAuthor
+        authorName: addAuthor
       }
 
       await this.ADD_AUTHOR(formData)
@@ -215,12 +215,12 @@ export default {
   color: white;
   border: white solid 1px;
   border-radius: 3px;
-  padding: 10px 1px 10px 1px;
+  padding: 10px 3px 10px 3px;
+  transition: 100ms;
 }
 .delete-author:hover {
   border-color: red;
-  color: red;
-  background-color: floralwhite;
+  background-color: #232323;
   cursor: pointer;
 }
 </style>

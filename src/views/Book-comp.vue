@@ -1,14 +1,16 @@
 <template>
   <div class="home-div">
-    <div class="new-list-div">
+    <div class="new-list-div"
+         :class="{book_list_small: this.screenWidth <= 1600}"
+    >
       <div class="new-book-error-div">
         {{newBookErrors}}
       </div>
       <div class="new-list-form-div">
-        <input class="new-list-input" v-model="addBookObj.book_name" placeholder="New book..." type="text">
-        <input class="new-list-input" v-model="addBookObj.book_year" placeholder="New book year..." type="number">
+        <input class="new-list-input" v-model="addBookObj.bookName" placeholder="New book..." type="text">
+        <input class="new-list-input" v-model="addBookObj.bookYear" placeholder="New book year..." type="number">
         <div class="new-list-but-div"
-             @click="addBook(addBookObj.book_name, addBookObj.book_year)"
+             @click="addBook(addBookObj.bookName, addBookObj.bookYear)"
         >
           <div class="new-list-but-text">
             Add
@@ -16,30 +18,32 @@
         </div>
       </div>
     </div>
-    <div class="book-list">
+    <div class="book-list"
+         :class="{book_list_small: this.screenWidth <= 1600}"
+    >
       <div class="book-list-item"
         v-for="book in books"
-           :key="book.book_id"
+           :key="book.bookId"
       >
 
          <div class="book-img"></div>
 
           <div class="book-name-descr">
             <div class="book-name-year">
-              <input class="book-name-input" v-model="book.book_name" @change="updateBook(book.book_id)" placeholder="Book name" type="text">
+              <input class="book-name-input" v-model="book.bookName" @change="updateBook(book.bookId)" placeholder="Book name" type="text">
 
               <div class="book-year">
                 <div class="book-year-text">
                   Year:
                 </div>
                 <input class="book-year-input"
-                       v-model="book.book_year"
-                       @change="updateBook(book.book_id)"
+                       v-model="book.bookYear"
+                       @change="updateBook(book.bookId)"
                        placeholder="add year"
                        type="number">
               </div>
             </div>
-            <textarea class="book-descr" spellcheck="false" v-model="book.book_description" @change="updateBook(book.book_id)" placeholder="Book description"/>
+            <textarea class="book-descr" spellcheck="false" v-model="book.bookDescription" @change="updateBook(book.bookId)" placeholder="add book description"/>
             <div class="error-mes">
               {{errorMas[books.indexOf(book)]}}
             </div>
@@ -49,28 +53,17 @@
 
             <div class="delete-btn-div">
               <div class="delete-btn-text"
-                @click="deleteBook(book.book_id)"
+                @click="deleteBook(book.bookId)"
               >
                 Delete Book
               </div>
             </div>
 
-<!--            <div class="book-year">-->
-<!--              <div class="book-year-text">-->
-<!--                Year:-->
-<!--              </div>-->
-<!--              <input class="book-year-input"-->
-<!--                     v-model="book.book_year"-->
-<!--                     @change="updateBook(book.book_id)"-->
-<!--                     placeholder="add year"-->
-<!--                     type="number">-->
-<!--            </div>-->
-
             <div class="book-author">
               <div class="book-add-author">
                 <input type="text" v-model="newAuthor[books.indexOf(book)]" placeholder="add Author">
                 <div class="book-add-author-but"
-                  @click="addAuthor(newAuthor[books.indexOf(book)], book.book_id)"
+                  @click="addAuthor(newAuthor[books.indexOf(book)], book.bookId)"
                 >
                   <div class="book-add-author-but-text">
                     Add
@@ -79,12 +72,12 @@
               </div>
               <div class="book-author-loop">
                 <div class="book-author-item"
-                  v-for="author in book.book_authorList"
-                     :key="book.book_authorList.indexOf(author)"
+                  v-for="author in book.authorList"
+                     :key="book.authorList.indexOf(author)"
                 >
-                  <input type="text" v-model="author.author_name" @change="updateBook(book.book_id)" placeholder="Author Name">
+                  <input type="text" v-model="author.authorName" @change="updateBook(book.bookId)" placeholder="Author Name">
                   <div class="delete_author_from_book"
-                      @click="removeAuthorFromBook(book.book_id, author.author_id)"
+                      @click="removeAuthorFromBook(book.bookId, author.authorId)"
                   >
                     <a>DEL</a>
                   </div>
@@ -105,13 +98,14 @@ export default {
   name: "Home-comp",
   data: () => ({
     addBookObj: {
-      book_name: "",
-      book_year: ""
+      bookName: "",
+      bookYear: ""
     },
     newBookErrors: "",
     newAuthor: [],
     errorMas: [],
-    books: []
+    books: [],
+    screenWidth: window.innerWidth
   }),
   computed: {
     ...mapGetters([
@@ -127,18 +121,18 @@ export default {
         'GET_ALL_AUTHORS'
     ]),
     async updateBook(bookId) {
-      let updateBookData = this.books.find(item => item.book_id === bookId)
+      let updateBookData = this.books.find(item => item.bookId === bookId)
       let updateIndex = this.books.indexOf(updateBookData)
 
-      if (updateBookData.book_name === '') {
+      if (updateBookData.bookName === '') {
         this.errorMas[updateIndex] = "Empty book name!"
         return ''
       } else { this.errorMas[updateIndex] = '' }
-      if (updateBookData.book_year === '') {
+      if (updateBookData.bookYear === '') {
         this.errorMas[updateIndex] = 'Invalid year of book!'
         return ''
       } else { this.errorMas[updateIndex] = '' }
-      if (updateBookData.book_authorList.length === 0) {
+      if (updateBookData.authorList.length === 0) {
         this.errorMas[updateIndex] = 'Empty author!'
         return ''
       } else { this.errorMas[updateIndex] = '' }
@@ -158,20 +152,20 @@ export default {
       await this.ADD_BOOKS(this.addBookObj)
       await this.GET_ALL_BOOKS()
       this.books = this.GET_BOOKS
-      this.addBookObj.book_name = ""
-      this.addBookObj.book_year = ""
+      this.addBookObj.bookName = ""
+      this.addBookObj.bookYear = ""
     },
 
     async addAuthor(author_name, book_id) {
       const newAuthor = {
-            "author_id": 0,
-            "author_name":author_name
+            "authorId": 0,
+            "authorName":author_name
       }
       console.log(newAuthor)
-      let curBook = this.books.find(item => item.book_id === book_id)
+      let curBook = this.books.find(item => item.bookId === book_id)
       let curIndex = this.books.indexOf(curBook)
 
-      curBook.book_authorList.push(newAuthor)
+      curBook.authorList.push(newAuthor)
 
       await this.updateBook(book_id)
       await this.GET_ALL_BOOKS()
@@ -181,18 +175,18 @@ export default {
     },
 
     async removeAuthorFromBook(book_id, author_id) {
-      let curBook = this.books.find(item => item.book_id === book_id)
+      let curBook = this.books.find(item => item.bookId === book_id)
       let curIndex = this.books.indexOf(curBook)
 
-      if (curBook.book_authorList.length === 1) {
+      if (curBook.authorList.length === 1) {
         this.errorMas[curIndex] = 'There is only one author!'
         return ''
       } else { this.errorMas[curIndex] = '' }
 
-      let deletedElement = curBook.book_authorList.find(item => item.author_id === author_id)
-      let deletedIndex = curBook.book_authorList.indexOf(deletedElement)
+      let deletedElement = curBook.authorList.find(item => item.authorId === author_id)
+      let deletedIndex = curBook.authorList.indexOf(deletedElement)
 
-      this.books[curIndex].book_authorList.splice(deletedIndex, 1)
+      this.books[curIndex].authorList.splice(deletedIndex, 1)
       // console.log(this.books[book_id - 1].book_authorList)
       await this.updateBook(book_id)
       await this.GET_ALL_BOOKS()
@@ -205,7 +199,14 @@ export default {
 
       await this.GET_ALL_BOOKS()
       this.books = this.GET_BOOKS
+    },
+
+    set_scale() {
+      this.screenWidth = window.innerWidth
     }
+  },
+  created() {
+    window.addEventListener('resize', this.set_scale)
   },
   async mounted() {
     await this.GET_ALL_BOOKS()
@@ -290,6 +291,9 @@ export default {
     justify-content: flex-start;
     align-items: center;
     overflow-y: scroll;
+  }
+  .book_list_small {
+    width: 80%;
   }
   .book-list-item {
     padding: 2% 2% 2% 2%;

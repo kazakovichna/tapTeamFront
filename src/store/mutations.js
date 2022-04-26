@@ -9,6 +9,6 @@ export default {
         state.sql_data = data
     },
     SET_ORM_DATA: (state, data) => {
-        state.sql_data = data
+        state.orm_data = data
     }
 }
