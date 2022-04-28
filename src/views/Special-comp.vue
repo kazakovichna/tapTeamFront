@@ -7,7 +7,7 @@
       SELECT book_name <br>
       FROM book AS b INNER JOIN <br>
       book_author AS ba ON b.id = ba.book_id <br>
-      GROUP BY b.book_name <br>
+      GROUP BY b.book_id <br>
       HAVING count(ba.book_id) > 2;
     </div>
     <div class="sql-div" v-for="value in Object.values(requestSQL)" :key="value.bookName">
@@ -23,7 +23,7 @@
       ->from('App:Book', 'b') <br>
       ->leftJoin('b.authorList', 'a') <br>
       ->having('COUNT(a.id) > 2') <br>
-      ->groupBy('b.book_name') <br>
+      ->groupBy('b.book_id') <br>
       ->getQuery();
     </div>
     <div class="sql-div" v-for="value in Object.values(requestORM)" :key="value.bookName">

@@ -59,8 +59,9 @@ export default {
         'DELETE_AUTHOR'
     ]),
     async addAuthorFunc(addAuthor) {
-      if (addAuthor.length === 0 || addAuthor.length > 255) {
+      if (this.addAuthor.length === 0 || this.addAuthor.length > 255) {
         this.errorNewAuthor = "Author name invalid"
+        return
       }
       this.errorNewAuthor = ""
       const formData = {

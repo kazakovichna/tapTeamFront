@@ -8,9 +8,32 @@
       </div>
       <div class="new-list-form-div">
         <input class="new-list-input" v-model="addBookObj.bookName" placeholder="New book..." type="text">
-        <input class="new-list-input" v-model="addBookObj.bookYear" placeholder="New book year..." type="number">
+        <input class="new-list-input"
+               v-model="addBookObj.bookYear"
+               placeholder="New book year..."
+               type="number">
+
+        <div class="choose-author">
+          <input class="choose-author-input"
+                 placeholder="Add author"
+                 v-model="authorInput"
+                 @change="checkAuthorInput(authorInput)"
+                 @focusout="closeAuthorList()"
+                 @click="choseAuthorIsActive = true"
+                 type="text">
+          <div class="choose-author-list" v-if="choseAuthorIsActive === true">
+            <div class="choose-author-item"
+                   v-for="author in authors"
+                   :key="author.authorId"
+                 @click="checkAuthorInput(author.authorName)"
+              >
+                {{author.authorName}}
+            </div>
+          </div>
+        </div>
+
         <div class="new-list-but-div"
-             @click="addBook(addBookObj.bookName, addBookObj.bookYear)"
+             @click="addBook(addBookObj)"
         >
           <div class="new-list-but-text">
             Add
@@ -30,7 +53,11 @@
 
           <div class="book-name-descr">
             <div class="book-name-year">
-              <input class="book-name-input" v-model="book.bookName" @change="updateBook(book.bookId)" placeholder="Book name" type="text">
+              <input class="book-name-input"
+                     v-model="book.bookName"
+                     @change="updateBookSimpleData(book.bookId)"
+                     placeholder="Book name"
+                     type="text">
 
               <div class="book-year">
                 <div class="book-year-text">
@@ -38,12 +65,16 @@
                 </div>
                 <input class="book-year-input"
                        v-model="book.bookYear"
-                       @change="updateBook(book.bookId)"
+                       @change="updateBookSimpleData(book.bookId)"
                        placeholder="add year"
                        type="number">
               </div>
             </div>
-            <textarea class="book-descr" spellcheck="false" v-model="book.bookDescription" @change="updateBook(book.bookId)" placeholder="add book description"/>
+            <textarea class="book-descr"
+                      spellcheck="false"
+                      v-model="book.bookDescription"
+                      @change="updateBookSimpleData(book.bookId)"
+                      placeholder="add book description"/>
             <div class="error-mes">
               {{errorMas[books.indexOf(book)]}}
             </div>
@@ -75,9 +106,9 @@
                   v-for="author in book.authorList"
                      :key="book.authorList.indexOf(author)"
                 >
-                  <input type="text" v-model="author.authorName" @change="updateBook(book.bookId)" placeholder="Author Name">
+                  <input type="text" v-model="author.authorName" @change="updateBookAuthorName(book.bookId, author.authorId)" placeholder="Author Name">
                   <div class="delete_author_from_book"
-                      @click="removeAuthorFromBook(book.bookId, author.authorId)"
+                      @click="updateBookDeleteAuthor(book.bookId, author.authorId)"
                   >
                     <a>DEL</a>
                   </div>
@@ -99,17 +130,22 @@ export default {
   data: () => ({
     addBookObj: {
       bookName: "",
-      bookYear: ""
+      bookYear: "",
+      chosenAuthor: ""
     },
+    authorInput: "",
+    choseAuthorIsActive: false,
     newBookErrors: "",
     newAuthor: [],
     errorMas: [],
     books: [],
+    authors: [],
     screenWidth: window.innerWidth
   }),
   computed: {
     ...mapGetters([
-        'GET_BOOKS'
+        'GET_BOOKS',
+        'GET_AUTHORS'
     ])
   },
   methods: {
@@ -118,8 +154,116 @@ export default {
        'GET_ALL_BOOKS',
         'UPDATE_BOOK',
         'DELETE_BOOK',
-        'GET_ALL_AUTHORS'
+        'GET_ALL_AUTHORS',
+        'UPDATE_BOOK_SIMPLE_DATA',
+        'UPDATE_BOOK_AUTHOR_NAME',
+        'UPDATE_BOOK_DELETE_AUTHOR'
     ]),
+    checkAuthorInput(authorInput) {
+      if (authorInput === '' || authorInput.length > 255) {
+        this.authorInput = ''
+        this.choseAuthorIsActive = false
+        return
+      }
+      this.authorInput = authorInput
+      this.addBookObj.chosenAuthor = authorInput
+      this.choseAuthorIsActive = false
+    },
+    closeAuthorList() {
+      setTimeout(() => {
+        this.choseAuthorIsActive = false
+      }, 100)
+    },
+    async updateBookSimpleData(bookId) {
+      let jsonUpdateData = {
+        bookName: "",
+        bookYear: 0,
+        bookDescription: ""
+      }
+
+      let updateBook = this.books.find(item => item.bookId === bookId)
+      let updateIndex = this.books.indexOf(updateBook)
+
+      if (updateBook.bookName === '' ||
+          updateBook.bookName.length > 255) {
+        this.errorMas[updateIndex] = "Invalid book Name!"
+        return ''
+      } else { this.errorMas[updateIndex] = '' }
+      if (updateBook.bookYear === '' ||
+          isNaN(parseInt(updateBook.bookYear)) ||
+          parseInt(updateBook.bookYear) < 0) {
+        this.errorMas[updateIndex] = 'Invalid year of book!'
+        return ''
+      } else { this.errorMas[updateIndex] = '' }
+      if (updateBook.bookDescription === '' ||
+          updateBook.bookDescription.length > 255) {
+        this.errorMas[updateIndex] = "Invalid book Description!"
+        return ''
+      } else { this.errorMas[updateIndex] = '' }
+
+      jsonUpdateData.bookName = updateBook.bookName
+      jsonUpdateData.bookYear = updateBook.bookYear
+      jsonUpdateData.bookDescription = updateBook.bookDescription
+
+      let requestData = {
+        data: jsonUpdateData,
+        id: bookId
+      }
+
+      await this.UPDATE_BOOK_SIMPLE_DATA(requestData)
+      await this.GET_ALL_BOOKS()
+      this.books = this.GET_BOOKS
+
+      console.log(jsonUpdateData)
+    },
+
+
+    async updateBookAuthorName(bookId, authorId) {
+      console.log(bookId)
+      console.log(authorId)
+
+      let updateAuthorData = {
+        authorId: 0,
+        authorName: ""
+      }
+
+      let updateBookData = this.books.find(item => item.bookId === bookId)
+      let updateIndex = this.books.indexOf(updateBookData)
+      let updateBookAuthor = updateBookData.authorList.find(item => item.authorId === authorId)
+
+      if (updateBookAuthor.authorName === '' ||
+          updateBookAuthor.authorName.length > 255) {
+        this.errorMas[updateIndex] = "Invalid Author Name!"
+        return ''
+      } else { this.errorMas[updateIndex] = '' }
+
+      updateAuthorData.authorName = updateBookAuthor.authorName
+      updateAuthorData.authorId = updateBookAuthor.authorId
+
+      let goData = {
+        bookId: bookId,
+        data: updateAuthorData
+      }
+
+      await this.UPDATE_BOOK_AUTHOR_NAME(goData)
+      await this.GET_ALL_BOOKS()
+      this.books = this.GET_BOOKS
+
+      console.log(updateAuthorData)
+    },
+
+    async updateBookDeleteAuthor(bookId, authorId) {
+      let delData = {
+        bookId: bookId,
+        authorId: authorId
+      }
+
+      await this.UPDATE_BOOK_DELETE_AUTHOR(delData)
+      await this.GET_ALL_BOOKS()
+      this.books = this.GET_BOOKS
+    },
+
+
     async updateBook(bookId) {
       let updateBookData = this.books.find(item => item.bookId === bookId)
       let updateIndex = this.books.indexOf(updateBookData)
@@ -128,7 +272,9 @@ export default {
         this.errorMas[updateIndex] = "Empty book name!"
         return ''
       } else { this.errorMas[updateIndex] = '' }
-      if (updateBookData.bookYear === '') {
+      if (updateBookData.bookYear === '' ||
+          isNaN(parseInt(updateBookData.bookYear)) ||
+          parseInt(updateBookData.bookYear) < 0) {
         this.errorMas[updateIndex] = 'Invalid year of book!'
         return ''
       } else { this.errorMas[updateIndex] = '' }
@@ -142,10 +288,13 @@ export default {
       this.books = this.GET_BOOKS
     },
 
-    async addBook(name, year) {
+    async addBook(addBookObj) {
       this.newBookErrors = ''
-      if ((name.length === 0 || name.length > 255) && (year.length === 0 || year.length > 4)) {
-        this.newBookErrors = 'Fields are invalid (Name and Year cant be empty or too long)'
+      if ((addBookObj.bookName.length === 0 || addBookObj.bookName.length > 255) ||
+          (addBookObj.bookYear.length === 0 || addBookObj.bookYear.length > 4) ||
+          (isNaN(parseInt(addBookObj.bookYear)) || parseInt(addBookObj.bookYear) < 0) ||
+          (addBookObj.chosenAuthor.length === 0 || addBookObj.chosenAuthor.length > 255)) {
+        this.newBookErrors = 'Fields are invalid (Name, Year and Author cant be empty or too long)'
         console.log('Empty fields')
         return
       }
@@ -154,6 +303,8 @@ export default {
       this.books = this.GET_BOOKS
       this.addBookObj.bookName = ""
       this.addBookObj.bookYear = ""
+      this.addBookObj.chosenAuthor = ""
+      this.authorInput = ""
     },
 
     async addAuthor(author_name, book_id) {
@@ -211,9 +362,11 @@ export default {
   async mounted() {
     await this.GET_ALL_BOOKS()
     this.books = this.GET_BOOKS
-
     this.newAuthor.length = this.books.length
     this.errorMas.length = this.books.length
+
+    await this.GET_ALL_AUTHORS()
+    this.authors = this.GET_AUTHORS
   },
 }
 </script>
@@ -254,7 +407,49 @@ export default {
   .new-list-form-div input:hover {
     outline: rgba(15, 52, 67, 0.54) solid 1px;
   }
+  .choose-author {
+    height: 100%;
+    width: 200px;
+    border-radius: 1px;
+    background-color: white;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    transition: 100ms;
+  }
+  .choose-author input {
+    outline: none;
+    border: none;
+  }
+  .choose-author input:active :hover :focus {
+    outline: none;
+    border: none;
+  }
+  .choose-author-input {
+    width: 200px;
+    height: 98%;
+    font-size: 18px;
+  }
+  .choose-author-list {
+    width: 200px;
+    background-color: white;
+    margin-top: 260px;
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+  }
+  .choose-author-item {
+    padding: 10px 0 10px 5px;
+    cursor: pointer;
+    width: 97%;
+  }
+  .choose-author-item:hover {
+    background-color: rgba(0, 0, 0, 0.1);
+  }
   .new-list-input {
+    width: 200px;
     border: none;
     border-radius: 2px;
     outline: none;
