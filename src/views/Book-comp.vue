@@ -18,10 +18,14 @@
                  placeholder="Add author"
                  v-model="authorInput"
                  @change="checkAuthorInput(authorInput)"
-                 @focusout="closeAuthorList()"
                  @click="choseAuthorIsActive = true"
                  type="text">
           <div class="choose-author-list" v-if="choseAuthorIsActive === true">
+            <div class="choose-author-close-but"
+                @click="closeAuthorList()"
+            >
+              Close
+            </div>
             <div class="choose-author-item"
                    v-for="author in authors"
                    :key="author.authorId"
@@ -92,7 +96,37 @@
 
             <div class="book-author">
               <div class="book-add-author">
-                <input type="text" v-model="newAuthor[books.indexOf(book)]" placeholder="add Author">
+
+                <div class="add-author-input-list">
+                  <input type="text" v-model="newAuthor[books.indexOf(book)]" placeholder="add Author"
+                    @click="authorListActiveMas[books.indexOf(book)] = true"
+                    @change="checkAddBookAuthor(newAuthor[books.indexOf(book)], books.indexOf(book))"
+                  >
+
+                  <div class="author-add-list"
+                    v-if="authorListActiveMas[books.indexOf(book)] === true"
+                  >
+                    <div class="author-add-close-but"
+                      @click="closeAddAuthorList(books.indexOf(book))"
+                    >
+                      Close
+                    </div>
+                    <div class="author-add-item"
+                      v-for="author in authors.reduce( (resMas, item) => {
+                                        if (book.authorList.find(
+                                            item2 =>  item2.authorId === item.authorId
+                                            ) === undefined) { resMas.push(item) }
+                                          return resMas
+                                        }, [])"
+                     :key="author.id"
+                     @click="checkAddBookAuthor(author.authorName, books.indexOf(book))"
+                    >
+                      {{author.authorName}}
+                    </div>
+                  </div>
+
+                </div>
+
                 <div class="book-add-author-but"
                   @click="addAuthor(newAuthor[books.indexOf(book)], book.bookId)"
                 >
@@ -140,6 +174,7 @@ export default {
     errorMas: [],
     books: [],
     authors: [],
+    authorListActiveMas: [],
     screenWidth: window.innerWidth
   }),
   computed: {
@@ -152,12 +187,12 @@ export default {
     ...mapActions([
        'ADD_BOOKS',
        'GET_ALL_BOOKS',
-        'UPDATE_BOOK',
         'DELETE_BOOK',
         'GET_ALL_AUTHORS',
         'UPDATE_BOOK_SIMPLE_DATA',
         'UPDATE_BOOK_AUTHOR_NAME',
-        'UPDATE_BOOK_DELETE_AUTHOR'
+        'UPDATE_BOOK_DELETE_AUTHOR',
+        'UPDATE_BOOK_ADD_AUTHOR'
     ]),
     checkAuthorInput(authorInput) {
       if (authorInput === '' || authorInput.length > 255) {
@@ -173,7 +208,22 @@ export default {
       setTimeout(() => {
         this.choseAuthorIsActive = false
       }, 100)
+
     },
+    checkAddBookAuthor(newAuthor, bookId) {
+      if (newAuthor.length === 0 || newAuthor.length > 255) {
+        return
+      }
+      this.newAuthor[bookId] = newAuthor
+
+      this.authorListActiveMas[bookId] = false
+    },
+    closeAddAuthorList(bookId) {
+      setTimeout(() => {
+        this.authorListActiveMas[bookId] = false
+      }, 100)
+    },
+
     async updateBookSimpleData(bookId) {
       let jsonUpdateData = {
         bookName: "",
@@ -195,7 +245,8 @@ export default {
         this.errorMas[updateIndex] = 'Invalid year of book!'
         return ''
       } else { this.errorMas[updateIndex] = '' }
-      if (updateBook.bookDescription === '' ||
+      if (updateBook.bookDescription === null ||
+          updateBook.bookDescription === '' ||
           updateBook.bookDescription.length > 255) {
         this.errorMas[updateIndex] = "Invalid book Description!"
         return ''
@@ -253,37 +304,23 @@ export default {
     },
 
     async updateBookDeleteAuthor(bookId, authorId) {
+      let curBook = this.books.find(item => item.bookId === bookId)
+      let curIndex = this.books.indexOf(curBook)
+
+      if (curBook.authorList.length === 1) {
+        this.errorMas[curIndex] = 'There is only one author!'
+        setTimeout(() => {
+          this.errorMas[curIndex] = ''
+        }, 1000)
+        return ''
+      } else { this.errorMas[curIndex] = '' }
+
       let delData = {
         bookId: bookId,
         authorId: authorId
       }
 
       await this.UPDATE_BOOK_DELETE_AUTHOR(delData)
-      await this.GET_ALL_BOOKS()
-      this.books = this.GET_BOOKS
-    },
-
-
-    async updateBook(bookId) {
-      let updateBookData = this.books.find(item => item.bookId === bookId)
-      let updateIndex = this.books.indexOf(updateBookData)
-
-      if (updateBookData.bookName === '') {
-        this.errorMas[updateIndex] = "Empty book name!"
-        return ''
-      } else { this.errorMas[updateIndex] = '' }
-      if (updateBookData.bookYear === '' ||
-          isNaN(parseInt(updateBookData.bookYear)) ||
-          parseInt(updateBookData.bookYear) < 0) {
-        this.errorMas[updateIndex] = 'Invalid year of book!'
-        return ''
-      } else { this.errorMas[updateIndex] = '' }
-      if (updateBookData.authorList.length === 0) {
-        this.errorMas[updateIndex] = 'Empty author!'
-        return ''
-      } else { this.errorMas[updateIndex] = '' }
-
-      await this.UPDATE_BOOK(updateBookData);
       await this.GET_ALL_BOOKS()
       this.books = this.GET_BOOKS
     },
@@ -308,21 +345,35 @@ export default {
     },
 
     async addAuthor(author_name, book_id) {
-      const newAuthor = {
-            "authorId": 0,
-            "authorName":author_name
-      }
-      console.log(newAuthor)
       let curBook = this.books.find(item => item.bookId === book_id)
-      let curIndex = this.books.indexOf(curBook)
 
-      curBook.authorList.push(newAuthor)
-
-      await this.updateBook(book_id)
-      await this.GET_ALL_BOOKS()
-      this.books = this.GET_BOOKS
-      await this.GET_ALL_AUTHORS
-      this.newAuthor[curIndex]= ""
+      if ( author_name.length === 0 || author_name.length > 255 ) {
+        this.errorMas[this.books.indexOf(curBook)] = "Invalid Author Name!"
+        setTimeout(() => {
+          this.errorMas[this.books.indexOf(curBook)] = ''
+        }, 1000)
+        return
+      }else { this.errorMas[this.books.indexOf(curBook)] = '' }
+      if (curBook.authorList.find(item => item.authorName === author_name) !== undefined) {
+        this.errorMas[this.books.indexOf(curBook)] = "Author already exist!"
+        setTimeout(() => {
+          this.errorMas[this.books.indexOf(curBook)] = ''
+        }, 1000)
+        return
+      }
+      //
+      // const addData = {
+      //       bookId: book_id,
+      //       authorName: author_name
+      // }
+      // let curIndex = this.books.indexOf(curBook)
+      //
+      // await this.UPDATE_BOOK_ADD_AUTHOR(addData)
+      // await this.GET_ALL_BOOKS()
+      // this.books = this.GET_BOOKS
+      // await this.GET_ALL_AUTHORS
+      // this.authors = this.GET_AUTHORS
+      // this.newAuthor[curIndex]= ""
     },
 
     async removeAuthorFromBook(book_id, author_id) {
@@ -363,7 +414,10 @@ export default {
     await this.GET_ALL_BOOKS()
     this.books = this.GET_BOOKS
     this.newAuthor.length = this.books.length
+    this.newAuthor.fill("")
     this.errorMas.length = this.books.length
+    this.authorListActiveMas.length = this.books.length
+    this.authorListActiveMas.fill(false)
 
     await this.GET_ALL_AUTHORS()
     this.authors = this.GET_AUTHORS
@@ -439,6 +493,19 @@ export default {
     flex-direction: column;
     align-items: flex-start;
     justify-content: center;
+  }
+  .choose-author-close-but {
+    width: 98%;
+    padding: 10px 0 10px 5px;
+    cursor: pointer;
+    background-color: #323232;
+    color: white;
+    transition: 100ms;
+    text-align: center;
+  }
+  .choose-author-close-but:hover {
+    padding: 12px 0 12px 5px;
+    background-color: #232323;
   }
   .choose-author-item {
     padding: 10px 0 10px 5px;
@@ -649,12 +716,48 @@ export default {
     gap: 5%;
     align-items: center;
   }
-  .book-add-author input {
+  .add-author-input-list {
+    width: 70%;
+  }
+  .add-author-input-list input {
     border-radius: 3px;
     height: 25px;
-    width: 70%;
+    width: 100%;
     outline: none;
     border: none;
+  }
+  .author-add-list {
+    position: absolute;
+    width: 145px;
+    background-color: white;
+    border-radius: 0 0 5px 5px;
+  }
+  .author-add-close-but {
+    width: 98%;
+    padding: 5px 0 5px 0;
+    border-width: 0 1px 0 1px;
+    border-color: white;
+    border-style: solid;
+    cursor: pointer;
+    background-color: #323232;
+    color: white;
+    transition: 100ms;
+    text-align: center;
+  }
+  .author-add-close-but:hover {
+    background-color: #232323;
+    padding: 7px 0 7px 0;
+  }
+  .author-add-item {
+    color: rgba(0, 0, 0, 0.7);
+    cursor: pointer;
+    padding: 5px 0 5px 0;
+    transition: 100ms;
+  }
+  .author-add-item:hover {
+    color: black;
+    padding: 6px 0 6px 0;
+    background-color: rgba(0, 0, 0, 0.1);
   }
   .book-add-author-but {
     height: 22px;
