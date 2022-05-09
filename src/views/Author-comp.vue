@@ -27,7 +27,7 @@
           {{ author.bookCount }} Books
         </div>
         <div class="delete-author"
-          @click="deleteAuthor(author.authorId)"
+          @click="deleteAuthor(author.id)"
         >
           Delete
         </div>

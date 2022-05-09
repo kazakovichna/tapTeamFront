@@ -5,9 +5,8 @@ export default {
     // This is books api requests
     async ADD_BOOKS({state}, bookData) {
         console.log(state.books)
-        console.log(JSON.stringify(bookData))
          await axios
-            .post('http://127.0.0.1:41429/book',
+            .post('https://safe-wildwood-07342.herokuapp.com/book',
                 JSON.stringify(bookData))
                 .then((events) => {
                     console.log(events)
@@ -18,7 +17,7 @@ export default {
     },
     async GET_ALL_BOOKS({commit}) {
         await axios
-            .get('http://127.0.0.1:41429/book')
+            .get('https://safe-wildwood-07342.herokuapp.com/book')
             .then((events) => {
                 commit('SET_BOOKS', events.data)
                 console.log(events.data)
@@ -31,10 +30,8 @@ export default {
     },
     async UPDATE_BOOK_SIMPLE_DATA({ state }, requestData) {
         console.log(state.books)
-        // console.log(jsonUpdateData)
-        // console.log(bookId)
         await axios
-            .post(`http://127.0.0.1:41429/book/${requestData.id}/updateSimpleData`,
+            .post(`https://safe-wildwood-07342.herokuapp.com/book/${requestData.id}/updateSimpleData`,
                     JSON.stringify(requestData.data))
             .then((response) => {
                 console.log(response)
@@ -44,10 +41,9 @@ export default {
             })
     },
     async UPDATE_BOOK_AUTHOR_NAME({state}, requestData) {
-        console.log('update book author name')
         console.log(state.books)
         await axios
-            .post(`http://127.0.0.1:41429/book/${requestData.bookId}/updateBookAuthorName`,
+            .post(`https://safe-wildwood-07342.herokuapp.com/book/${requestData.bookId}/updateBookAuthorName`,
                 JSON.stringify(requestData.data))
             .then((response) => {
                 console.log(response)
@@ -58,10 +54,8 @@ export default {
     },
     async UPDATE_BOOK_DELETE_AUTHOR({state}, delData) {
         console.log(state.books)
-        console.log(delData)
-        console.log('update book delete author')
         await axios
-            .post(`http://127.0.0.1:41429/book/${delData.bookId}/updateBookDeleteAuthor`,
+            .post(`https://safe-wildwood-07342.herokuapp.com/book/${delData.bookId}/updateBookDeleteAuthor`,
             JSON.stringify(delData))
             .then((response) => {
                 console.log(response)
@@ -72,9 +66,8 @@ export default {
     },
     async UPDATE_BOOK_ADD_AUTHOR({state}, addData) {
         console.log(state.books)
-        console.log(addData)
         await axios
-            .post(`http://127.0.0.1:41429/book/${addData.bookId}/updateBookAddAuthor`,
+            .post(`https://safe-wildwood-07342.herokuapp.com/book/${addData.bookId}/updateBookAddAuthor`,
                 JSON.stringify(addData))
             .then((response) => {
                 console.log(response)
@@ -86,7 +79,7 @@ export default {
     async DELETE_BOOK({state}, book_id) {
         console.log(state.books)
         await axios
-            .delete(`http://127.0.0.1:41429/book/${book_id}`)
+            .delete(`https://safe-wildwood-07342.herokuapp.com/book/${book_id}`)
             .then((response) => {
                 console.log(response)
             })
@@ -98,7 +91,7 @@ export default {
     // This is author api request, I'm gonna add store's modules later
     async GET_ALL_AUTHORS({commit}) {
         await axios
-            .get('http://127.0.0.1:41429/author')
+            .get('https://safe-wildwood-07342.herokuapp.com/author')
             .then((events) => {
                 commit('SET_AUTHOR', events.data)
                 console.log(events.data)
@@ -111,9 +104,8 @@ export default {
     },
     async ADD_AUTHOR({state}, authorData) {
         console.log(state.authors)
-        console.log(JSON.stringify(authorData))
         await axios
-            .post('http://127.0.0.1:41429/author',
+            .post('https://safe-wildwood-07342.herokuapp.com/author',
                 JSON.stringify(authorData))
             .then((response) => {
                 console.log(response)
@@ -125,7 +117,7 @@ export default {
     async DELETE_AUTHOR({state}, author_id) {
         console.log(state.authors)
         await axios
-            .delete(`http://127.0.0.1:41429/author/${author_id}`)
+            .delete(`https://safe-wildwood-07342.herokuapp.com/author/${author_id}`)
             .then((response) => {
                 console.log(response)
             })
@@ -135,7 +127,7 @@ export default {
     },
     async GET_SQL_SPECIAL({commit}) {
         await axios
-            .get('http://127.0.0.1:41429/special/sql')
+            .get('https://safe-wildwood-07342.herokuapp.com/special/sql')
             .then((response) => {
                 commit('SET_SQL_DATA', response.data)
                 console.log(response.data)
@@ -146,7 +138,7 @@ export default {
     },
     async GET_ORM_SPECIAL({commit}) {
         await axios
-            .get('http://127.0.0.1:41429/special/orm')
+            .get('https://safe-wildwood-07342.herokuapp.com/special/orm')
             .then((response) => {
                 commit('SET_ORM_DATA', response.data)
                 console.log(response)

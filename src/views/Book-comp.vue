@@ -28,7 +28,7 @@
             </div>
             <div class="choose-author-item"
                    v-for="author in authors"
-                   :key="author.authorId"
+                   :key="author.id"
                  @click="checkAuthorInput(author.authorName)"
               >
                 {{author.authorName}}
@@ -50,7 +50,7 @@
     >
       <div class="book-list-item"
         v-for="book in books"
-           :key="book.bookId"
+           :key="book.id"
       >
 
          <div class="book-img"></div>
@@ -59,7 +59,7 @@
             <div class="book-name-year">
               <input class="book-name-input"
                      v-model="book.bookName"
-                     @change="updateBookSimpleData(book.bookId)"
+                     @change="updateBookSimpleData(book.id)"
                      placeholder="Book name"
                      type="text">
 
@@ -69,7 +69,7 @@
                 </div>
                 <input class="book-year-input"
                        v-model="book.bookYear"
-                       @change="updateBookSimpleData(book.bookId)"
+                       @change="updateBookSimpleData(book.id)"
                        placeholder="add year"
                        type="number">
               </div>
@@ -77,7 +77,7 @@
             <textarea class="book-descr"
                       spellcheck="false"
                       v-model="book.bookDescription"
-                      @change="updateBookSimpleData(book.bookId)"
+                      @change="updateBookSimpleData(book.id)"
                       placeholder="add book description"/>
             <div class="error-mes">
               {{errorMas[books.indexOf(book)]}}
@@ -88,7 +88,7 @@
 
             <div class="delete-btn-div">
               <div class="delete-btn-text"
-                @click="deleteBook(book.bookId)"
+                @click="deleteBook(book.id)"
               >
                 Delete Book
               </div>
@@ -114,7 +114,7 @@
                     <div class="author-add-item"
                       v-for="author in authors.reduce( (resMas, item) => {
                                         if (book.authorList.find(
-                                            item2 =>  item2.authorId === item.authorId
+                                            item2 =>  item2.id === item.id
                                             ) === undefined) { resMas.push(item) }
                                           return resMas
                                         }, [])"
@@ -128,7 +128,7 @@
                 </div>
 
                 <div class="book-add-author-but"
-                  @click="addAuthor(newAuthor[books.indexOf(book)], book.bookId)"
+                  @click="addAuthor(newAuthor[books.indexOf(book)], book.id)"
                 >
                   <div class="book-add-author-but-text">
                     Add
@@ -140,9 +140,9 @@
                   v-for="author in book.authorList"
                      :key="book.authorList.indexOf(author)"
                 >
-                  <input type="text" v-model="author.authorName" @change="updateBookAuthorName(book.bookId, author.authorId)" placeholder="Author Name">
+                  <input type="text" v-model="author.authorName" @change="updateBookAuthorName(book.id, author.id)" placeholder="Author Name">
                   <div class="delete_author_from_book"
-                      @click="updateBookDeleteAuthor(book.bookId, author.authorId)"
+                      @click="updateBookDeleteAuthor(book.id, author.id)"
                   >
                     <a>DEL</a>
                   </div>
@@ -231,7 +231,7 @@ export default {
         bookDescription: ""
       }
 
-      let updateBook = this.books.find(item => item.bookId === bookId)
+      let updateBook = this.books.find(item => item.id === bookId)
       let updateIndex = this.books.indexOf(updateBook)
 
       if (updateBook.bookName === '' ||
@@ -278,9 +278,9 @@ export default {
         authorName: ""
       }
 
-      let updateBookData = this.books.find(item => item.bookId === bookId)
+      let updateBookData = this.books.find(item => item.id === bookId)
       let updateIndex = this.books.indexOf(updateBookData)
-      let updateBookAuthor = updateBookData.authorList.find(item => item.authorId === authorId)
+      let updateBookAuthor = updateBookData.authorList.find(item => item.id === authorId)
 
       if (updateBookAuthor.authorName === '' ||
           updateBookAuthor.authorName.length > 255) {
@@ -289,7 +289,7 @@ export default {
       } else { this.errorMas[updateIndex] = '' }
 
       updateAuthorData.authorName = updateBookAuthor.authorName
-      updateAuthorData.authorId = updateBookAuthor.authorId
+      updateAuthorData.authorId = updateBookAuthor.id
 
       let goData = {
         bookId: bookId,
@@ -304,7 +304,7 @@ export default {
     },
 
     async updateBookDeleteAuthor(bookId, authorId) {
-      let curBook = this.books.find(item => item.bookId === bookId)
+      let curBook = this.books.find(item => item.id === bookId)
       let curIndex = this.books.indexOf(curBook)
 
       if (curBook.authorList.length === 1) {
@@ -345,7 +345,8 @@ export default {
     },
 
     async addAuthor(author_name, book_id) {
-      let curBook = this.books.find(item => item.bookId === book_id)
+      // console.log(author_name, ' ', book_id)
+      let curBook = this.books.find(item => item.id === book_id)
 
       if ( author_name.length === 0 || author_name.length > 255 ) {
         this.errorMas[this.books.indexOf(curBook)] = "Invalid Author Name!"
@@ -361,39 +362,19 @@ export default {
         }, 1000)
         return
       }
-      //
-      // const addData = {
-      //       bookId: book_id,
-      //       authorName: author_name
-      // }
-      // let curIndex = this.books.indexOf(curBook)
-      //
-      // await this.UPDATE_BOOK_ADD_AUTHOR(addData)
-      // await this.GET_ALL_BOOKS()
-      // this.books = this.GET_BOOKS
-      // await this.GET_ALL_AUTHORS
-      // this.authors = this.GET_AUTHORS
-      // this.newAuthor[curIndex]= ""
-    },
 
-    async removeAuthorFromBook(book_id, author_id) {
-      let curBook = this.books.find(item => item.bookId === book_id)
+      const addData = {
+            bookId: book_id,
+            authorName: author_name
+      }
       let curIndex = this.books.indexOf(curBook)
 
-      if (curBook.authorList.length === 1) {
-        this.errorMas[curIndex] = 'There is only one author!'
-        return ''
-      } else { this.errorMas[curIndex] = '' }
-
-      let deletedElement = curBook.authorList.find(item => item.authorId === author_id)
-      let deletedIndex = curBook.authorList.indexOf(deletedElement)
-
-      this.books[curIndex].authorList.splice(deletedIndex, 1)
-      // console.log(this.books[book_id - 1].book_authorList)
-      await this.updateBook(book_id)
+      await this.UPDATE_BOOK_ADD_AUTHOR(addData)
       await this.GET_ALL_BOOKS()
       this.books = this.GET_BOOKS
       await this.GET_ALL_AUTHORS
+      this.authors = this.GET_AUTHORS
+      this.newAuthor[curIndex]= ""
     },
 
     async deleteBook(book_id) {
@@ -466,9 +447,6 @@ export default {
     width: 200px;
     border-radius: 1px;
     background-color: white;
-    display: flex;
-    align-items: center;
-    justify-content: flex-start;
     transition: 100ms;
   }
   .choose-author input {
@@ -485,14 +463,13 @@ export default {
     font-size: 18px;
   }
   .choose-author-list {
-    width: 200px;
+    width: 205px;
     background-color: white;
-    margin-top: 260px;
     position: absolute;
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    justify-content: center;
+    justify-content: flex-start;
   }
   .choose-author-close-but {
     width: 98%;
